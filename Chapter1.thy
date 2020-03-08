@@ -300,6 +300,38 @@ lemma (in affine_plane) contained_points: "\<forall> l.  \<exists> S T.  S\<note
 
   text \<open>\done\<close>
 
+
+(* Brad: I don't see a place set up yet for working solutions for the Chapter 1 problems, so 
+ I figure here is as good a place as any. We can always move it around. *)
+  text  \<open>
+\section*{Affine Plane Problems}
+Here we provide solutions to a number of the problems given at the back of Hartshorne's book---in 
+particular, those concerning only the affine plane.
+\<close>
+
+  text \<open>
+\noindent \textbf{Problem 2.} If there is a line with exactly $k$ points, show that the number of points in 
+the whole affine plane is $k^2$. 
+\<close>
+  text \<open>\brad\<close>
+
+theorem (in affine_plane) problem_2: "\<lbrakk>card({P. meets P l}) = k\<rbrakk> \<Longrightarrow> card({P::'point}) = k * k"
+proof -
+  fix l::'line
+  obtain k where k: "card({P. meets P l}) = k" by auto 
+  obtain P where P: "\<not>(meets P l)" using a3 collinear_def by blast
+  obtain Q R where QR: "meets Q l \<and> meets R l \<and> Q \<noteq> R" using contained_points by blast 
+  obtain m where m: "meets Q m \<and> meets P m \<and> m \<noteq> l" by (metis P a1 containing_line) 
+  obtain n where n: "meets R n \<and> meets P n \<and> n \<noteq> l \<and> \<not>(n || m)" by (metis P QR a1 affine_plane_data.parallel_def m prop1P2)
+  have parallel_m: "\<lbrakk>meets S l\<rbrakk> \<Longrightarrow> \<exists>m_i. m_i || m \<and> meets S m_i" by (meson a2 affine_plane_data.parallel_def symmetric_parallel)
+  have parallel_n: "\<lbrakk>meets S l\<rbrakk> \<Longrightarrow> \<exists>n_i. n_i || n \<and> meets S n_i" by (meson a2 parallel_def symmetric_parallel)
+  obtain Mi where Mi: "\<forall>mi \<in> Mi. m_i || m \<and> (\<forall>S \<in> {S. meets S l}. \<exists>m_i \<in> Mi. meets S m_i)" by blast 
+  obtain Ni where Ni: "\<forall>ni \<in> Ni. n_i || n \<and> (\<forall>S \<in> {S. meets S l}. \<exists>n_i \<in> Ni. meets S n_i)" by blast
+  have "card(Mi) = k" (* not working *)
+qed
+
+text \<open>\done\<close>
+
   section  \<open> The real affine plane\<close>
   text \<open> Hartshorne mentioned, just after the definition of an affine plane and some notational 
 notes, that the ordinary affine plane is an example of an affine plane. We should prove 
@@ -878,6 +910,7 @@ begin
 end
 (* Pretty nifty, hunh? It's a pain to try to read the output, but the gist is pretty clear: 4 points,
 6 lines, each consisting of two distinct points. *)
+
 
 text  \<open> 
 \begin{hartshorne}
