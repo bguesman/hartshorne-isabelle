@@ -46,7 +46,8 @@ begin
 (* Goal: to prove the theorem that "dmeets is a projective plane" *)
 
 lemma dmeets_p1aa: "P \<noteq> Q \<longrightarrow> (\<exists>l. dmeets P l \<and> dmeets Q l)"
-  sorry
+  using dmeets_def p2 by blast
+  
 (* first exercise: 
 1. what happens if you remove the "forall Q : at the start of that lemma? 
 2. rewrite that lemma as p1a, in fix-assume-show format
@@ -64,21 +65,43 @@ lemma dunique_lines:
   assumes "dmeets P m"
   assumes "dmeets B m"
   shows "l = m" 
-    sorry
+  sorry
 
 lemma "dmeets_p1b": "P \<noteq> Q \<longrightarrow> (\<exists>!l. dmeets P l \<and> dmeets Q l)"
   using dmeets_p1aa dunique_lines by blast 
 
 lemma "dmeets_p2": "\<forall>l m. l \<noteq> m \<longrightarrow> (\<exists>!P. dmeets P l \<and> dmeets P m)"
-  sorry
+  by (simp add: dmeets_def p1)
+
 lemma "dmeets_p3": "\<exists>P Q R. P \<noteq> Q \<and> P \<noteq> R \<and> Q \<noteq> R \<and> \<not> projective_plane_data.collinear dmeets P Q R"
   sorry
 
-lemma "pmeets_p4": "\<forall> l. \<exists>P Q R. P \<noteq> Q \<and> P \<noteq> R \<and> Q \<noteq> R \<and> dmeets P l \<and> dmeets Q l \<and> dmeets R l"
-  sorry
+text \<open>
+Proven in class the other day. @jackson/spike/seiji/caleb feel free to add your names to this 
+since the proof was pretty collaborative.
+\brad
+\done\<close>
+lemma "pmeets_p4": 
+  shows "\<exists>P Q R. P \<noteq> Q \<and> P \<noteq> R \<and> Q \<noteq> R \<and> dmeets P l \<and> dmeets Q l \<and> dmeets R l"
+proof -
+  obtain m where m: "\<not>(meets l m)"
+    by (metis (mono_tags, lifting) dmeets_def dmeets_p3 projective_plane_data.collinear_def)
+  obtain A B C where abc: "(meets A m) \<and> (meets B m) \<and> (meets C m) \<and> A \<noteq> B \<and> B \<noteq> C \<and> C \<noteq> A"
+    using p4 by blast
+  obtain P where P: "(meets A P) \<and> (meets l P)"
+    by (metis p1 p4) 
+  obtain Q where Q: "(meets B Q) \<and> (meets l Q)"
+    by (metis p1 p4) 
+  obtain R where R: "(meets C R) \<and> (meets l R)"
+    by (metis p1 p4)
+  have all_dmeets: "(dmeets P l) \<and> (dmeets Q l) \<and> (dmeets R l)"
+    by (simp add: P Q R dmeets_def)
+  then have all_not_equal: "P \<noteq> Q \<and> P \<noteq> R \<and> Q \<noteq> R"
+    using P Q R abc m p1 by auto
+  thus ?thesis using all_dmeets by blast 
+qed
 
-theorem "projective_plane dmeets"
-  sorry
+theorem "projective_plane dmeets" 
 end
 
 
