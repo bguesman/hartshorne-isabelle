@@ -308,20 +308,47 @@ particular, those concerning only the affine plane.
 the whole affine plane is $k^2$. 
 \<close>
   text \<open>\brad\<close>
-
+(*
 theorem (in affine_plane) problem_2: "\<lbrakk>card({P. meets P l}) = k\<rbrakk> \<Longrightarrow> card({P::'point}) = k * k"
 proof -
   fix l::'line
-  obtain k where k: "card({P. meets P l}) = k" by auto 
+  obtain points_of_l where points_of_l: "points_of_l = {P. meets P l}" by metis 
+  obtain k where k: "card(points_of_l) = k" by auto 
   obtain P where P: "\<not>(meets P l)" using a3 collinear_def by blast
   obtain Q R where QR: "meets Q l \<and> meets R l \<and> Q \<noteq> R" using contained_points by blast 
   obtain m where m: "meets Q m \<and> meets P m \<and> m \<noteq> l" by (metis P a1 containing_line) 
   obtain n where n: "meets R n \<and> meets P n \<and> n \<noteq> l \<and> \<not>(n || m)" by (metis P QR a1 affine_plane_data.parallel_def m prop1P2)
-  have parallel_m: "\<lbrakk>meets S l\<rbrakk> \<Longrightarrow> \<exists>m_i. m_i || m \<and> meets S m_i" by (meson a2 affine_plane_data.parallel_def symmetric_parallel)
-  have parallel_n: "\<lbrakk>meets S l\<rbrakk> \<Longrightarrow> \<exists>n_i. n_i || n \<and> meets S n_i" by (meson a2 parallel_def symmetric_parallel)
-  obtain Mi where Mi: "\<forall>mi \<in> Mi. m_i || m \<and> (\<forall>S \<in> {S. meets S l}. \<exists>m_i \<in> Mi. meets S m_i)" by blast 
-  obtain Ni where Ni: "\<forall>ni \<in> Ni. n_i || n \<and> (\<forall>S \<in> {S. meets S l}. \<exists>n_i \<in> Ni. meets S n_i)" by blast
-  have "card(Mi) = k" (* not working *)
+  have parallel_m: "\<lbrakk>meets S l\<rbrakk> \<Longrightarrow> \<exists>!m_i. m_i || m \<and> meets S m_i"
+    by (smt affine_plane.a2 affine_plane.symmetric_parallel affine_plane_axioms parallel_def) 
+  then have parallel_n: "\<lbrakk>meets S l\<rbrakk> \<Longrightarrow> \<exists>!n_i. n_i || n \<and> meets S n_i"
+    by (smt affine_plane.a2 affine_plane.symmetric_parallel affine_plane_axioms parallel_def)
+  then have card_l: "card({S. meets S l}) = k" by (simp add: k)
+  then have card_mi: "card({mi. mi || m}) \<ge> k"
+  (*obtain Mi where Mi: "Mi = {mi. \<exists>S. meets S l \<and> meets S m \<and>  mi || m}"
+    by simp 
+  obtain Ni where Ni: "Ni = {ni. \<exists>S. meets S l \<and> meets S n \<and>  ni || n}"
+    by simp
+  have "card(Mi) \<ge> k" *)
+qed
+*)
+theorem (in affine_plane) problem_2: "\<lbrakk>card({P. meets P l}) = k\<rbrakk> \<Longrightarrow> card({P::'point}) = k * k"
+proof -
+  fix l::'line
+  obtain points_of_l where points_of_l: "points_of_l = {P. meets P l}" by metis
+  obtain k where k: "card(points_of_l) = k" by auto
+  obtain P_m where P_m: "P_m \<notin> points_of_l"
+    by (metis UNIV_I a3 collinear_def mem_Collect_eq points_of_l set_eqI)
+  obtain m where m: "meets P_m m \<and> \<not>(m || l)"
+    by (metis P_m a1 contained_points containing_line mem_Collect_eq parallel_def points_of_l)
+  obtain m_parallel where m_parallel: "m_parallel = {mi. mi || m}"
+    by metis
+  have "\<lbrakk>P_l \<in> points_of_l\<rbrakk> \<Longrightarrow> \<exists>!mi \<in> m_parallel. meets P_l mi"
+    by (smt a2 m_parallel mem_Collect_eq parallel_def reflexive_parallel)
+  then have "\<lbrakk>mi \<in> m_parallel\<rbrakk> \<Longrightarrow> \<exists>!P_l. meets P_l l \<and> meets P_l mi"
+    by (smt affine_plane.prop1P2 affine_plane_axioms affine_plane_data.parallel_alt equivp_def equivp_parallel m m_parallel mem_Collect_eq)
+  then have "\<lbrakk>mi \<in> m_parallel\<rbrakk> \<Longrightarrow> \<exists>!P_l \<in> points_of_l. meets P_l mi"
+    by (metis mem_Collect_eq points_of_l)
+  then have "card(m_parallel) = card(points_of_l)" 
 qed
 
 text \<open>\done\<close>
