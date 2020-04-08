@@ -1,6 +1,5 @@
 theory Chapter3
-  imports Chapter2
-
+  imports Chapter2 "HOL-Algebra.Algebra"
 begin
 section\<open>Digression on Groups and Automorphisms\<close>
 text \<open>
@@ -16,7 +15,11 @@ The element $1$ is called the \term{identity}, or \term{unit}, element. The elem
 called the \term{inverse} of $a.$ Note that in general the product $ab$ may be different from $ba.$
 However, we say that the group $G$ is \term{abelian,} or \term{commutative,} if
 G4 $\forall a, b \in G, ab = ba.$
+\end{hartshorne}
+\<close>
 
+text \<open>
+\begin{hartshorne}
 Examples. 
 
 1. Let $S$ be any set, and let $G$ be the set of permutations of the set $S.$
@@ -171,6 +174,35 @@ where
 (*
 CONTINUES WITH DOT-PRODUCT DEFINITION OF MATRIX MULTIPLICATION
 *)
+
+
+(* Proposition 3.1: There is a 1-1 correspondence between the elements
+ of H, a subgroup of G, and the elements of gH. *)
+
+(* Some definitions that make the statement of 3.1 easier. *)
+definition injective :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightarrow> ('b set)  \<Rightarrow> bool"
+  where "injective f U V  \<longleftrightarrow> (\<forall> u1 \<in> U. \<forall> u2 \<in> U. (f(u1) = f(u2)) \<longleftrightarrow> (u1 = u2))" 
+
+definition surjective :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightarrow> ('b set) \<Rightarrow> bool"
+  where "surjective f U V  \<longleftrightarrow>  (\<forall> v \<in> V. \<exists>u \<in> U. f(u) = v)"
+
+definition bijective :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightarrow> ('b set)  \<Rightarrow> bool"
+  where "bijective f U V \<longleftrightarrow> (injective f U V \<and> surjective f U V)"
+
+(* A map is homomorphic if it preserves the structure of the objects it maps between.
+ * I.e., if it preserves the behavior of the operators A and B. *)
+definition homomorphic :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a \<Rightarrow> 'a  \<Rightarrow> 'a) \<Rightarrow> ('b \<Rightarrow> 'b  \<Rightarrow> 'b) \<Rightarrow> bool"
+  where "homomorphic f A B \<longleftrightarrow> ( \<forall> a b. (f(A a b) = B (f(a)) (f(b))))"
+
+theorem bijection_between_cosets:
+  assumes G_is_a_group: "group G" 
+  assumes H_subgroup_G: "subgroup H G"
+  assumes gH_coset: "gH \<in> l_cosets H"
+  shows "\<exists>f. bijective f H gH"
+proof -
+  obtain g where g: "(g \<in> carrier G) \<and> (gH = (g <# H))" try
+ (* obtain f where "f h = g \<otimes> h" *)
+qed
 
 end
 
