@@ -1,5 +1,5 @@
 theory Chapter3
-  imports Chapter2 "HOL-Algebra.Algebra"
+  imports Chapter2 "HOL-Algebra.Sym_Groups" "HOL-Algebra.Group_Action"
 begin
 section\<open>Digression on Groups and Automorphisms\<close>
 text \<open>
@@ -45,6 +45,8 @@ An \term{isomorphism} of one group with another is a homomorphism which is
 $H \subseteq G,$ such that for any $a,b \in H,$ $ab \in H$ and $a^{-1} \in H.$
 \end{hartshorne}
  \<close>
+
+
 
 
 
@@ -194,6 +196,28 @@ definition bijective :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightar
 definition homomorphic :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a \<Rightarrow> 'a  \<Rightarrow> 'a) \<Rightarrow> ('b \<Rightarrow> 'b  \<Rightarrow> 'b) \<Rightarrow> bool"
   where "homomorphic f A B \<longleftrightarrow> ( \<forall> a b. (f(A a b) = B (f(a)) (f(b))))"
 
+
+lemma bij_btw_cosets:
+  assumes "group G"
+  assumes "g \<in> carrier G"
+  assumes "subgroup H G"
+  assumes "Hg = H #>\<^bsub>G\<^esub> g"
+  shows "\<exists>f. bij_betw f H Hg"
+proof -
+  have "Hg \<in> rcosets\<^bsub>G\<^esub> H"
+    by (simp add: assms(1) assms(2) assms(3) assms(4) group.rcosetsI group.subgroupE(1))
+  thus ?thesis
+    using assms(1) assms(3) group.card_cosets_equal subgroup.subset by blast
+qed
+
+lemma lagrange_group_card:
+  assumes "group G"
+  assumes "subgroup H G"
+  shows "card(carrier G) = card(H) * card(rcosets\<^bsub>G\<^esub> H)"
+  by (metis assms(1) assms(2) group.lagrange order_def semiring_normalization_rules(7))
+
+
+(*
 theorem bijection_between_cosets:
   assumes G_is_a_group: "group G" 
   assumes H_subgroup_G: "subgroup H G"
@@ -203,6 +227,7 @@ proof -
   obtain g where g: "(g \<in> carrier G) \<and> (gH = (g <# H))" try
  (* obtain f where "f h = g \<otimes> h" *)
 qed
+*)
 
 end
 
