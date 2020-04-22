@@ -177,7 +177,7 @@ where
 CONTINUES WITH DOT-PRODUCT DEFINITION OF MATRIX MULTIPLICATION
 *)
 
-
+(*
 (* Proposition 3.1: There is a 1-1 correspondence between the elements
  of H, a subgroup of G, and the elements of gH. *)
 
@@ -195,9 +195,9 @@ definition bijective :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightar
  * I.e., if it preserves the behavior of the operators A and B. *)
 definition homomorphic :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a \<Rightarrow> 'a  \<Rightarrow> 'a) \<Rightarrow> ('b \<Rightarrow> 'b  \<Rightarrow> 'b) \<Rightarrow> bool"
   where "homomorphic f A B \<longleftrightarrow> ( \<forall> a b. (f(A a b) = B (f(a)) (f(b))))"
+*)
 
-
-lemma bij_btw_cosets:
+lemma bij_btw_right_cosets:
   assumes "group G"
   assumes "g \<in> carrier G"
   assumes "subgroup H G"
@@ -208,6 +208,17 @@ proof -
     by (simp add: assms(1) assms(2) assms(3) assms(4) group.rcosetsI group.subgroupE(1))
   thus ?thesis
     using assms(1) assms(3) group.card_cosets_equal subgroup.subset by blast
+qed
+
+lemma bijection_btw_left_cosets:
+  assumes "group G"
+  assumes "g \<in> carrier G"
+  assumes "subgroup H G"
+  assumes "gH = H <#\<^bsub>G\<^esub> g"
+  shows "\<exists>f. bij_betw f H gH"
+proof -
+  have "gH \<in> lcosets\<^bsub>G\<^esub> H" sorry
+  thus thesis? sorry
 qed
 
 lemma lagrange_group_card:
