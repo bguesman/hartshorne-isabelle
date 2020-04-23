@@ -197,6 +197,39 @@ definition homomorphic :: "('a  \<Rightarrow> 'b) \<Rightarrow> ('a \<Rightarrow
   where "homomorphic f A B \<longleftrightarrow> ( \<forall> a b. (f(A a b) = B (f(a)) (f(b))))"
 *)
 
+
+(*
+lemma bijection_btw_left_cosets:
+  assumes "group G"
+  assumes "g \<in> carrier G"
+  assumes "subgroup H G"
+  assumes "gH = H <#\<^bsub>G\<^esub> g"
+  shows "\<exists>f. bij_betw f H gH"
+proof -
+  have "gH \<in> lcosets\<^bsub>G\<^esub> H" sorry
+  thus thesis? sorry
+qed
+*)
+
+lemma group_action_is_group:
+  assumes "group_action G E phi"
+  shows "group G"
+  using assms group_action.group_hom group_hom.axioms(1) by blast
+
+lemma bij_group_action:
+  assumes "G = BijGroup S"
+  shows "group_action G S (\<lambda>g e. g(e))"
+  by (simp add: assms group_BijGroup group_action.intro group_hom.intro group_hom_axioms.intro homI)
+
+text\<open>Example\<close>
+lemma bij_fix_el_are_subgroup:
+  assumes "G = BijGroup S"
+  assumes "x \<in> S"
+  assumes "H = stabilizer G (\<lambda>g e. g(e)) x" 
+  shows "subgroup H G"
+  using assms(1) assms(2) assms(3) bijections_are_a_group_action group_action.stabilizer_subgroup by fastforce
+
+text\<open>Proposition 3.1 (but with right cosets)\<close>
 lemma bij_btw_right_cosets:
   assumes "group G"
   assumes "g \<in> carrier G"
@@ -210,22 +243,53 @@ proof -
     using assms(1) assms(3) group.card_cosets_equal subgroup.subset by blast
 qed
 
-lemma bijection_btw_left_cosets:
-  assumes "group G"
-  assumes "g \<in> carrier G"
-  assumes "subgroup H G"
-  assumes "gH = H <#\<^bsub>G\<^esub> g"
-  shows "\<exists>f. bij_betw f H gH"
-proof -
-  have "gH \<in> lcosets\<^bsub>G\<^esub> H" sorry
-  thus thesis? sorry
-qed
-
+text\<open>Corollary 3.2\<close>
 lemma lagrange_group_card:
   assumes "group G"
   assumes "subgroup H G"
   shows "card(carrier G) = card(H) * card(rcosets\<^bsub>G\<^esub> H)"
   by (metis assms(1) assms(2) group.lagrange order_def semiring_normalization_rules(7))
+
+text\<open>Example\<close>
+lemma orbit_stabilizer_thm:
+  assumes "G = BijGroup S"
+  assumes "phi = (\<lambda>g e. g(e))"
+  assumes "x \<in> S"
+  assumes "H = stabilizer G phi x"
+  shows "card(carrier G) = card(H) * card(orbit G phi x)"
+proof -
+  have "group_action G S phi"
+      by (simp add: assms(1) assms(2) bij_group_action)
+    thus ?thesis 
+      by (metis assms(3) assms(4) group_action.orbit_stabilizer_theorem mult.commute order_def)
+qed
+
+
+text\<open>Example above, in transitive group\<close>
+lemma trans_orbit_stabilizer_thm:
+  assumes "subgroup G_car (BijGroup S)"
+  assumes "G = \<lparr>carrier = G_car, mult = mult (BijGroup S), one = one (BijGroup S)\<rparr>"
+  assumes "phi = (\<lambda>g e. g(e))"
+  assumes "transitive_action G S phi"
+  assumes "x \<in> S"
+  assumes "H = stabilizer G phi x"
+  shows "card(carrier G) = card(H) * card(S)"
+proof -
+  have "card(carrier G) = card(H) * card(orbit G phi x)"
+    by (metis assms(4) assms(5) assms(6) group_action.orbit_stabilizer_theorem linordered_field_class.sign_simps(5) order_def transitive_action.axioms(1))
+  also have "S = orbit G phi x"
+  proof 
+    show "S \<subseteq> orbit G phi x"
+      by (smt CollectI assms(4) assms(5) orbit_def subsetI transitive_action.unique_orbit)
+    show "orbit G phi x \<subseteq> S"
+      by (smt assms(4) assms(5) group_action.element_image mem_Collect_eq orbit_def subsetI transitive_action.axioms(1))
+  qed
+  then have cards_same: "card S = card (orbit G phi x)"
+    by simp
+  thus ?thesis
+    by (simp add: calculation)
+qed
+
 
 
 (*
