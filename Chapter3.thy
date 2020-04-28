@@ -1,5 +1,6 @@
 theory Chapter3
-  imports Chapter2 "HOL-Algebra.Sym_Groups" "HOL-Algebra.Group_Action"
+  imports Chapter2 "HOL-Algebra.Sym_Groups" "HOL-Algebra.Group_Action" "HOL.Factorial" "HOL.Finite_Set"
+
 begin
 section\<open>Digression on Groups and Automorphisms\<close>
 text \<open>
@@ -227,7 +228,7 @@ lemma bij_fix_el_are_subgroup:
   assumes "x \<in> S"
   assumes "H = stabilizer G (\<lambda>g e. g(e)) x" 
   shows "subgroup H G"
-  using assms(1) assms(2) assms(3) bijections_are_a_group_action group_action.stabilizer_subgroup by fastforce
+  using assms(1) assms(2) assms(3) bij_group_action group_action.stabilizer_subgroup by fastforce
 
 text\<open>Proposition 3.1 (but with right cosets)\<close>
 lemma bij_btw_right_cosets:
@@ -290,6 +291,58 @@ proof -
     by (simp add: calculation)
 qed
 
+
+text\<open>Corollary 3.3\<close>
+lemma same_el_one_set:
+  assumes "x \<in> S"
+  and "\<And>y. y \<in> S \<Longrightarrow> y = x"
+  shows "S = {x}"
+proof
+  show "{x} \<subseteq> S"
+    by (simp add: assms(1))
+  show "S \<subseteq> {x}"
+  proof 
+    fix z assume "z \<in> S"
+    then show "z \<in> {x}"
+      by (simp add: \<open>z \<in> S\<close> assms(2))
+  qed
+qed
+
+lemma base_num_perms:
+  assumes "card K = 1"
+  assumes "H = BijGroup K"
+  shows "card (carrier H) = 1"
+proof -
+  obtain f g where fg: "f \<in> carrier H" "g \<in> carrier H"
+    using assms(2) group.subgroup_self group_BijGroup subgroup_def by blast
+  then have fj_bij: "bij_betw f K K" "bij_betw g K K"
+      using assms(1) assms(2)
+       apply (simp add: BijGroup_def Bij_def)
+      by (metis BijGroup_def Bij_def Int_Collect assms(2) fg(2) partial_object.select_convs(1))
+  then have "f = (\<lambda>x \<in> K. x)"
+      using assms(1) fg BijGroup_def 
+      by (smt BijGroup_def Bij_imp_extensional Pi_split_insert_domain assms(1) assms(2) bij_betw_imp_funcset card_1_singletonE extensional_restrict fg(1) partial_object.select_convs(1) restrict_ext singletonD)
+  then have "f = one H"
+      using BijGroup_def
+      by (simp add: BijGroup_def assms(2))
+  from fg fj_bij have fgeq: "g = f"
+      by (smt BijGroup_def Bij_imp_extensional Pi_split_insert_domain assms(1) assms(2) bij_betw_imp_funcset card_1_singletonE extensional_restrict partial_object.select_convs(1) restrict_ext singletonD)
+  from fg fgeq have "carrier H = {f}"
+      using same_el_one_set 
+      by (smt BijGroup_def Bij_def Int_Collect Pi_split_insert_domain assms(1) assms(2) bij_betw_imp_funcset card_1_singletonE extensionalityI partial_object.select_convs(1) singletonD)
+  then show "card(carrier H) = 1"
+      by simp
+qed
+
+corollary num_perms:
+  fixes n :: "nat"
+  assumes "G = BijGroup S"
+  shows "card S = (n + 1) \<Longrightarrow> card (carrier G) = fact(n + 1)"
+  apply (induction n)
+  subgoal using base_num_perms 
+    by (simp add: base_num_perms assms)
+  subgoal sorry
+  
 
 
 (*
